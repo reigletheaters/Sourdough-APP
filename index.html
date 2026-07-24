@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Mariah's Sourdough Co. — Real bread, baked with care</title>
+  <meta name="description" content="Slow-fermented organic sourdough, baked fresh by hand. Order online — local delivery.">
+  <meta name="theme-color" content="#3B2A1A">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mariah's">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="mode-showcase">
+
+  <!-- Ambient particle canvas (Showcase mode) -->
+  <canvas id="particles" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <div class="nav-wrap">
+      <a href="#/" class="brand" data-link>Mariah's <span>Sourdough Co.</span></a>
+      <nav class="site-nav">
+        <a href="#/" data-route="home" data-link>Home</a>
+        <a href="#/shop" data-route="shop" data-link>Shop</a>
+        <a href="#/about" data-route="about" data-link>Who We Are</a>
+        <a href="#/why" data-route="why" data-link>Why Sourdough?</a>
+      </nav>
+      <div class="header-actions">
+        <button id="mode-toggle" class="mode-toggle" title="Switch visual style" aria-label="Switch visual style">
+          <span class="mode-dot"></span><span id="mode-label">Showcase</span>
+        </button>
+        <button id="install-btn" class="install-btn" hidden>⬇ Install app</button>
+        <a href="#/cart" class="cart-link" data-link aria-label="Cart">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span id="cart-badge" class="cart-badge" hidden>0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="deal-banner">
+    <div class="deal-banner-track">
+      <span>Buy 2 loaves and save <strong>10%</strong></span>
+      <span>•</span>
+      <span>Buy 4 and save <strong>20%</strong></span>
+      <span>•</span>
+      <span>Baked the day it's delivered</span>
+    </div>
+  </div>
+
+  <main id="app" aria-live="polite"></main>
+
+  <!-- Mobile bottom tab bar -->
+  <nav class="tab-bar" aria-label="Primary">
+    <a href="#/" data-route="home" data-link><span class="tab-ico">🏠</span>Home</a>
+    <a href="#/shop" data-route="shop" data-link><span class="tab-ico">🍞</span>Shop</a>
+    <a href="#/why" data-route="why" data-link><span class="tab-ico">🌾</span>Why</a>
+    <a href="#/cart" data-route="cart" data-link class="tab-cart"><span class="tab-ico">🛒</span>Cart<span id="tab-cart-badge" class="cart-badge" hidden>0</span></a>
+  </nav>
+
+  <footer class="site-footer">
+    © Mariah's Sourdough Co. — Baked weekly with love &nbsp;•&nbsp;
+    <a href="#/about" data-link>About</a> &nbsp;•&nbsp;
+    <a href="#/why" data-link>Why Sourdough</a> &nbsp;•&nbsp;
+    <a href="#/shop" data-link>Shop</a>
+  </footer>
+
+  <!-- ======================= VIEW TEMPLATES ======================= -->
+
+  <template id="view-home">
+    <section class="hero" id="hero">
+      <div id="hero-3d" class="hero-3d" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <p class="hero-kicker reveal">Small-batch • Organic • Naturally leavened</p>
+        <h1 class="reveal">Slow-fermented sourdough,<br>baked fresh by hand.</h1>
+        <p class="lead reveal">Pure, organic ingredients. No shortcuts. Just real bread the way it was meant to be made.</p>
+        <div class="hero-cta reveal">
+          <a href="#/shop" class="btn btn-lg" data-link>Shop the loaves</a>
+          <a href="#/why" class="btn ghost btn-lg" data-link>Why sourdough?</a>
+        </div>
+      </div>
+      <div class="hero-scroll-hint" aria-hidden="true"><span></span></div>
+    </section>
+
+    <section class="container">
+      <h2 class="section-title reveal">Today's Featured Loaves</h2>
+      <p class="section-sub reveal">Four signature varieties — all $14, all baked this week.</p>
+      <div class="product-grid" data-product-grid="short"></div>
+      <div class="center mt-36 reveal">
+        <a class="btn secondary" href="#/shop" data-link>See the full shop →</a>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="container">
+        <h2 class="section-title reveal">The More You Bake With Us, The More You Save</h2>
+        <p class="section-sub reveal">Our way of saying thanks — discounts apply automatically at checkout.</p>
+        <div class="deals-row">
+          <div class="deal-card reveal"><span class="pct" data-count="10">10% off</span><h3>Buy 2 loaves</h3><p>Mix and match any two — perfect for the week ahead.</p></div>
+          <div class="deal-card reveal"><span class="pct" data-count="20">20% off</span><h3>Buy 4 loaves</h3><p>Stock the freezer or share with neighbors. Best value.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <h2 class="section-title reveal">Ways to Enjoy It</h2>
+      <p class="section-sub reveal">A few of our favorite ways to put a fresh loaf to work.</p>
+      <div class="pairings-grid">
+        <div class="pairing-card reveal"><h3>Toast &amp; butter</h3><p>A warm slice, good salted butter, a tiny pinch of flaky salt. The simplest perfect breakfast.</p></div>
+        <div class="pairing-card reveal"><h3>Sunday French toast</h3><p>Cinnamon raisin or chocolate chip, soaked in eggs and milk, then fried in butter. Slow morning required.</p></div>
+        <div class="pairing-card reveal"><h3>Bread for dipping</h3><p>Olive &amp; rosemary torn next to a steaming bowl of soup, or dipped in good olive oil with cracked pepper.</p></div>
+        <div class="pairing-card reveal"><h3>The grilled cheese</h3><p>Classic sourdough, sharp cheddar, butter on the outside. Nothing fancy, nothing better.</p></div>
+      </div>
+    </section>
+  </template>
+
+  <template id="view-shop">
+    <section class="container">
+      <h1 class="section-title reveal">The Shop</h1>
+      <p class="section-sub reveal">All loaves are 100% organic, naturally leavened, and baked the day they're delivered. $14 each.</p>
+      <div class="product-grid" data-product-grid="long"></div>
+
+      <h2 class="section-title mt-64 reveal">Stack Up the Savings</h2>
+      <div class="deals-row">
+        <div class="deal-card reveal"><span class="pct">10% off</span><h3>2-Loaf Bundle</h3><p>Any 2 loaves — discount applied automatically in your cart.</p></div>
+        <div class="deal-card reveal"><span class="pct">20% off</span><h3>4-Loaf Bundle</h3><p>Stock up, gift a neighbor, freeze for later. Maximum savings.</p></div>
+      </div>
+    </section>
+  </template>
+
+  <template id="view-about">
+    <section class="container">
+      <h1 class="section-title reveal">Meet Mariah</h1>
+      <p class="section-sub reveal">A one-woman bakery, a wild starter, and a stubborn belief that bread should be made of bread.</p>
+      <div class="story-grid">
+        <div class="story-photo reveal"><img src="mariah.jpg" alt="Mariah at home with her puppy"></div>
+        <div class="reveal">
+          <h2>The story</h2>
+          <p>I started baking sourdough a few years ago after I couldn't find a single loaf at the grocery store that didn't list ingredients I didn't recognize. I figured I'd try making my own. One loaf turned into two, then ten, then a wait list of friends and neighbors asking for more.</p>
+          <p>Mariah's Sourdough Co. grew out of that — quietly, one bake at a time. Today every loaf is still shaped, scored, and baked by me.</p>
+          <h2 class="mt-28">What goes into the bread</h2>
+          <p>Three ingredients. That's the whole list:</p>
+          <ul>
+            <li><strong>Certified-organic flour.</strong></li>
+            <li><strong>Filtered water.</strong></li>
+            <li><strong>Good-quality natural salt.</strong></li>
+          </ul>
+          <p>That's it. No commercial yeast, no dough conditioners, no preservatives, no enrichers, no oils, no sugars (unless the recipe specifically calls for it, like the cinnamon raisin). The fermentation does all the work — and it takes its time.</p>
+          <div class="tag-row">
+            <span class="tag">100% Organic</span><span class="tag">No Preservatives</span><span class="tag">No Commercial Yeast</span><span class="tag">Small-Batch</span><span class="tag">Hand-Shaped</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="band">
+      <div class="container">
+        <h2 class="section-title reveal">Why I do it this way</h2>
+        <p class="prose-center reveal">Real bread used to be a staple — something that nourished a family for the week. Somewhere along the way it became fluffy, fast, and full of things our bodies don't recognize. I bake the way bakers have for thousands of years because that's the version of bread your body actually knows how to use. And honestly? It just tastes better.</p>
+        <div class="center mt-30 reveal">
+          <a class="btn" href="#/shop" data-link>Try a loaf</a>
+          <a class="btn secondary" href="#/why" data-link>Read about the benefits</a>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <template id="view-why">
+    <section class="container">
+      <h1 class="section-title reveal">Why Sourdough Bread?</h1>
+      <p class="section-sub reveal">Same grain. Different process. A very different loaf.</p>
+      <p class="prose-center mb-40 reveal">Conventional bread is mixed, risen, and baked in a few hours using fast commercial yeast. Sourdough is fermented slowly — sometimes 24 to 48 hours — by a wild culture of natural yeasts and bacteria. That long, slow ferment changes the bread itself, in ways your body notices.</p>
+      <div class="benefit-grid">
+        <div class="benefit-card reveal"><span class="benefit-icon">🌾</span><h3>Easier to digest</h3><p>The wild bacteria in a sourdough starter pre-digest much of the gluten and starch during fermentation. Many people who feel uncomfortable after regular bread find sourdough far easier on their stomach.</p></div>
+        <div class="benefit-card reveal"><span class="benefit-icon">💪</span><h3>More nutrients absorbed</h3><p>Whole grains contain phytic acid, which can block your body from absorbing minerals like iron, zinc, and magnesium. Sourdough fermentation breaks phytic acid down — meaning more of those nutrients actually reach you.</p></div>
+        <div class="benefit-card reveal"><span class="benefit-icon">📉</span><h3>Lower glycemic impact</h3><p>Sourdough produces a slower, gentler rise in blood sugar than commercial bread. Steadier energy, fewer crashes, and a friendlier loaf for anyone watching glucose levels.</p></div>
+        <div class="benefit-card reveal"><span class="benefit-icon">🦠</span><h3>Good for gut health</h3><p>The lactic acid bacteria in fermentation produce prebiotic compounds that feed the beneficial microbes already living in your gut — supporting a healthier microbiome with every slice.</p></div>
+        <div class="benefit-card reveal"><span class="benefit-icon">🧪</span><h3>No mystery ingredients</h3><p>True sourdough needs only flour, water, and salt. No dough conditioners, no preservatives, no added sugars, no emulsifiers — just bread, the way it's been made for thousands of years.</p></div>
+        <div class="benefit-card reveal"><span class="benefit-icon">⏳</span><h3>Stays fresh, naturally</h3><p>The natural acidity of sourdough acts as a built-in preservative. Loaves stay fresh longer without a single additive — because fermentation is doing the work that chemicals do in supermarket bread.</p></div>
+        <div class="benefit-card reveal"><span class="benefit-icon">🍞</span><h3>Naturally lower in gluten</h3><p>While sourdough is not gluten-free, the long fermentation breaks down a significant portion of the gluten proteins, often making it tolerable for people sensitive to (but not allergic to) wheat.</p></div>
+        <div class="benefit-card reveal"><span class="benefit-icon">😋</span><h3>It just tastes better</h3><p>That tangy depth, the chewy crumb, the crackling crust — none of it is engineered. It's the byproduct of slow fermentation. Real flavor is what happens when bread is given time.</p></div>
+      </div>
+      <div class="center mt-50 reveal"><a class="btn" href="#/shop" data-link>Try a loaf for yourself</a></div>
+    </section>
+    <section class="band">
+      <div class="container pv-40">
+        <p class="disclaimer">These descriptions reflect general nutritional research about sourdough fermentation. They are not medical advice — if you have a wheat allergy, celiac disease, or specific dietary needs, please consult your doctor.</p>
+      </div>
+    </section>
+  </template>
+
+  <template id="view-cart">
+    <section class="container">
+      <h1 class="section-title reveal">Your Cart</h1>
+      <div id="cart-container"></div>
+    </section>
+  </template>
+
+  <template id="view-checkout">
+    <section class="container" id="checkout-main">
+      <h1 class="section-title reveal">Checkout</h1>
+      <p class="section-sub reveal">Just your name, then pay with Venmo. We'll deliver locally — no shipping needed.</p>
+      <div class="checkout-grid">
+        <form id="venmo-order-form" class="checkout-form reveal" novalidate action="https://formspree.io/f/xbdenaoj" method="POST">
+          <h2>Your info</h2>
+          <div class="co-row">
+            <label>Full name
+              <input type="text" name="full_name" required placeholder="Jane Baker">
+            </label>
+          </div>
+          <h2>Pay with Venmo</h2>
+          <div class="venmo-box">
+            <div class="venmo-row">
+              <div>
+                <div class="venmo-label">Send this much</div>
+                <div class="venmo-value venmo-amount-value" id="amount-display">$0.00</div>
+              </div>
+            </div>
+            <div class="venmo-row">
+              <div>
+                <div class="venmo-label">To this Venmo handle</div>
+                <div class="venmo-value" id="pay-handle">@mariahmetoyer</div>
+              </div>
+              <button type="button" class="copy-btn" data-copy="pay-handle">Copy</button>
+            </div>
+            <a class="open-venmo-btn" href="https://venmo.com/mariahmetoyer" target="_blank" rel="noopener">Open Venmo →</a>
+            <div class="venmo-instructions">
+              <strong>How it works:</strong>
+              <ol>
+                <li>Tap <strong>Open Venmo</strong> above (it'll take you straight to Mariah's profile)</li>
+                <li>Send the amount shown</li>
+                <li>Come back here and tap "I've sent it" below</li>
+                <li>Mariah will text you to confirm</li>
+              </ol>
+            </div>
+          </div>
+          <input type="hidden" name="order_items" id="hidden-order-items">
+          <input type="hidden" name="order_subtotal" id="hidden-subtotal">
+          <input type="hidden" name="order_discount" id="hidden-discount">
+          <input type="hidden" name="order_total" id="hidden-total">
+          <input type="hidden" name="loaf_count" id="hidden-count">
+          <input type="hidden" name="_subject" value="New sourdough order">
+          <div class="submit-error" id="submit-error">Something went wrong submitting your order. Please try again, or text Mariah directly.</div>
+          <button type="submit" id="submit-btn" class="btn w-100 mt-14">I've sent payment — submit order</button>
+          <p class="co-legal">Your order isn't confirmed until Mariah has verified the payment. She'll text you within a few hours.</p>
+        </form>
+        <aside class="checkout-summary reveal" id="order-summary">
+          <h2>Order Summary</h2>
+          <div class="co-lines" id="summary-lines"></div>
+          <div class="co-totals" id="summary-totals"></div>
+        </aside>
+      </div>
+    </section>
+  </template>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  <script src="app.js" defer></script>
+</body>
+</html>
