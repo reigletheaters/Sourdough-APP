@@ -406,6 +406,13 @@ main, .site-header, .deal-banner, .site-footer, .tab-bar { position: relative; z
   perspective: 1200px;
 }
 
+/* Desktop: 3 cards on top, 2 centered below */
+@media (min-width: 1000px) {
+  .product-grid { grid-template-columns: repeat(6, 1fr); }
+  .product-grid .product-card { grid-column: span 2; }
+  .product-grid .product-card:nth-child(4) { grid-column: 2 / span 2; }
+}
+
 .product-card {
   background: #fff;
   border-radius: var(--radius);
