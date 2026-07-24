@@ -13,19 +13,27 @@ const MODE_KEY = 'mariahs_mode';
 
 const PRODUCTS = {
   classic: {
-    id: 'classic', name: 'Classic', price: PRICE_PER_LOAF, img: 'classic.jpg',
-    badge: 'Flagship',
+    id: 'classic', name: 'Classic', price: 12, img: 'classic.jpg',
+    badge: 'Flagship — $12',
     alt: 'Classic Sourdough loaf on parchment',
     short: 'Crackling crust, open crumb, deep tangy flavor. Our flagship loaf.',
     long: 'A 36-hour cold ferment gives this loaf its trademark crackling crust and big, open crumb. Tangy, complex, and endlessly versatile.'
   },
+  pretzel: {
+    id: 'pretzel', name: 'Pretzel', price: PRICE_PER_LOAF,
+    img: 'https://images.unsplash.com/photo-1509957879660-dd8846a0b43d?auto=format&fit=crop&w=600&q=80',
+    badge: 'New',
+    alt: 'Golden-brown pretzel bread',
+    short: 'Deep mahogany crust, soft chewy center, a sprinkle of coarse salt.',
+    long: 'Our sourdough meets the pretzel: dipped for that deep mahogany crust and finished with coarse salt. Soft, chewy, and dangerously good with mustard or melted cheese.'
+  },
   olive: {
-    id: 'olive', name: 'Olive & Rosemary', price: PRICE_PER_LOAF,
+    id: 'olive', name: 'Olive', price: PRICE_PER_LOAF,
     img: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?auto=format&fit=crop&w=600&q=80',
     badge: 'Savory',
-    alt: 'Olive and rosemary sourdough',
-    short: 'Briny Kalamatas and fresh rosemary folded into a savory, tender crumb.',
-    long: 'Brined Kalamata olives and fresh rosemary leaves baked into every slice. Mediterranean-inspired and unapologetically savory.'
+    alt: 'Olive sourdough loaf',
+    short: 'Briny Kalamatas folded into a savory, tender crumb.',
+    long: 'Brined Kalamata olives baked into every slice. Mediterranean-inspired and unapologetically savory.'
   },
   chocolate: {
     id: 'chocolate', name: 'Chocolate Chip', price: PRICE_PER_LOAF, img: 'chocolate.jpg',
@@ -653,35 +661,138 @@ function initHero3D() {
   mount.appendChild(renderer.domElement);
 
   // Lighting — warm bakery glow
-  scene.add(new THREE.AmbientLight(0xfff1d6, 0.55));
-  const key = new THREE.DirectionalLight(0xffdca8, 1.1);
-  key.position.set(3, 5, 4);
+  scene.add(new THREE.AmbientLight(0xfff1d6, 0.5));
+  const key = new THREE.DirectionalLight(0xffe3b3, 1.25);
+  key.position.set(3, 6, 4);
   scene.add(key);
-  const rim = new THREE.PointLight(0xd9542b, 0.8, 30);
-  rim.position.set(-4, 1, -2);
+  const fill = new THREE.DirectionalLight(0xffd9a0, 0.35);
+  fill.position.set(-3, 1.5, 3);
+  scene.add(fill);
+  const rim = new THREE.PointLight(0xd9542b, 0.6, 30);
+  rim.position.set(-4, 1, -3);
   scene.add(rim);
 
-  // The loaf — stylized boule
+  // ---- Procedural crust texture (painted on a canvas) ----
+  function makeCrustTexture() {
+    const c = document.createElement('canvas');
+    c.width = 1024; c.height = 1024;
+    const g = c.getContext('2d');
+
+    // Base bake gradient: dark crust on top → pale bottom
+    const grad = g.createLinearGradient(0, 0, 0, 1024);
+    grad.addColorStop(0.00, '#8f5119');
+    grad.addColorStop(0.22, '#a96426');
+    grad.addColorStop(0.50, '#c28438');
+    grad.addColorStop(0.78, '#d8ab63');
+    grad.addColorStop(1.00, '#e7cf9e');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 1024, 1024);
+
+    // Mottled bake blotches (darker + lighter patches)
+    for (let i = 0; i < 850; i++) {
+      const y = Math.pow(Math.random(), 1.35) * 1024;    // bias toward crusty top
+      const x = Math.random() * 1024;
+      const r = 4 + Math.random() * 34;
+      g.globalAlpha = 0.04 + Math.random() * 0.09;
+      g.fillStyle = Math.random() > 0.45 ? '#6e3c10' : '#e2a94f';
+      g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+    }
+
+    // Fine crackle specks
+    for (let i = 0; i < 500; i++) {
+      const y = Math.pow(Math.random(), 1.6) * 1024;
+      g.globalAlpha = 0.10 + Math.random() * 0.18;
+      g.fillStyle = '#5a2f0c';
+      g.beginPath(); g.arc(Math.random() * 1024, y, 0.8 + Math.random() * 2.6, 0, Math.PI * 2); g.fill();
+    }
+
+    // Flour dusting — soft white patches near the top
+    for (let i = 0; i < 26; i++) {
+      const x = Math.random() * 1024;
+      const y = Math.pow(Math.random(), 2) * 460;
+      const r = 30 + Math.random() * 90;
+      const fg = g.createRadialGradient(x, y, 0, x, y, r);
+      fg.addColorStop(0, 'rgba(255,248,236,0.34)');
+      fg.addColorStop(1, 'rgba(255,248,236,0)');
+      g.globalAlpha = 1;
+      g.fillStyle = fg;
+      g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+    }
+    for (let i = 0; i < 450; i++) {
+      const y = Math.pow(Math.random(), 2.2) * 420;
+      g.globalAlpha = 0.08 + Math.random() * 0.16;
+      g.fillStyle = '#fff8ec';
+      g.beginPath(); g.arc(Math.random() * 1024, y, 1 + Math.random() * 3.4, 0, Math.PI * 2); g.fill();
+    }
+
+    // Scoring: tapered spokes that converge at the top pole
+    // (drawn near the top edge of the texture = crown of the boule)
+    g.globalAlpha = 1;
+    for (let i = 0; i < 4; i++) {
+      const x = (i + 0.5) * 256;
+      // dark cut
+      g.strokeStyle = 'rgba(84,44,10,0.92)';
+      g.lineCap = 'round';
+      for (let seg = 0; seg < 12; seg++) {
+        const t0 = seg / 12, t1 = (seg + 1) / 12;
+        g.lineWidth = 20 - t0 * 15;
+        g.beginPath();
+        g.moveTo(x + Math.sin(t0 * 5) * 6, 16 + t0 * 260);
+        g.lineTo(x + Math.sin(t1 * 5) * 6, 16 + t1 * 260);
+        g.stroke();
+      }
+      // blistered "ear" highlight along one edge of the cut
+      g.strokeStyle = 'rgba(244,230,201,0.85)';
+      for (let seg = 0; seg < 12; seg++) {
+        const t0 = seg / 12, t1 = (seg + 1) / 12;
+        g.lineWidth = 7 - t0 * 5;
+        g.beginPath();
+        g.moveTo(x + 13 + Math.sin(t0 * 5) * 6, 20 + t0 * 250);
+        g.lineTo(x + 13 + Math.sin(t1 * 5) * 6, 20 + t1 * 250);
+        g.stroke();
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.RepeatWrapping;
+    return tex;
+  }
+
+  // ---- The loaf: lumpy ellipsoid boule with baked crust ----
   const loaf = new THREE.Group();
-  const bodyGeo = new THREE.SphereGeometry(1.5, 48, 36);
-  bodyGeo.scale(1.35, 0.82, 1.0);
+  const bodyGeo = new THREE.SphereGeometry(1.5, 96, 64);
+
+  // Organic lumpiness via layered sine noise pushed along the radius
+  const pos = bodyGeo.attributes.position;
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const n =
+      0.045 * Math.sin(3.1 * v.x + 1.7) * Math.sin(2.7 * v.z - 0.8) +
+      0.030 * Math.sin(5.3 * v.y + 2.1) * Math.sin(4.1 * v.x + 0.6) +
+      0.018 * Math.sin(8.2 * v.z + 3.0) * Math.sin(6.4 * v.y);
+    v.multiplyScalar(1 + n);
+    pos.setXYZ(i, v.x, v.y, v.z);
+  }
+  bodyGeo.scale(1.3, 0.85, 1.05);
+
+  // Flatten the bottom so it sits like a real boule
+  for (let i = 0; i < pos.count; i++) {
+    const y = pos.getY(i);
+    if (y < -0.92) pos.setY(i, -0.92 + (y + 0.92) * 0.22);
+  }
+  bodyGeo.computeVertexNormals();
+
+  const crustTex = makeCrustTexture();
   const crustMat = new THREE.MeshStandardMaterial({
-    color: 0xc9892b, roughness: 0.62, metalness: 0.05
+    map: crustTex,
+    bumpMap: crustTex,
+    bumpScale: 0.04,
+    roughness: 0.82,
+    metalness: 0.0
   });
   const body = new THREE.Mesh(bodyGeo, crustMat);
   loaf.add(body);
-
-  // Scoring slashes across the top
-  const scoreMat = new THREE.MeshStandardMaterial({
-    color: 0xf4e6c9, roughness: 0.85, metalness: 0
-  });
-  for (let i = -1; i <= 1; i++) {
-    const cut = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.055, 0.13), scoreMat);
-    cut.position.set(0, 1.18 - Math.abs(i) * 0.13, i * 0.42);
-    cut.rotation.z = 0.12;
-    cut.rotation.y = 0.25;
-    loaf.add(cut);
-  }
 
   // Flour dust ring around the loaf
   const dustGeo = new THREE.BufferGeometry();
@@ -699,23 +810,6 @@ function initHero3D() {
     color: 0xfff8ec, size: 0.045, transparent: true, opacity: 0.65
   }));
   scene.add(dust);
-
-  // Orbiting mini-loaves
-  const minis = new THREE.Group();
-  for (let i = 0; i < 3; i++) {
-    const g = new THREE.SphereGeometry(0.28, 24, 18);
-    g.scale(1.4, 0.8, 1);
-    const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({
-      color: 0xe8b14b, roughness: 0.7
-    }));
-    const angle = (i / 3) * Math.PI * 2;
-    m.userData.angle = angle;
-    m.userData.radius = 3.1 + i * 0.25;
-    m.userData.speed = 0.25 + i * 0.07;
-    m.userData.yOff = (i - 1) * 0.5;
-    minis.add(m);
-  }
-  scene.add(minis);
 
   loaf.position.y = -0.15;
   scene.add(loaf);
@@ -749,16 +843,6 @@ function initHero3D() {
     loaf.position.y = -0.15 + Math.sin(t * 1.1) * 0.12;
 
     dust.rotation.y = t * 0.05;
-
-    minis.children.forEach(m => {
-      const a = m.userData.angle + t * m.userData.speed;
-      m.position.set(
-        Math.cos(a) * m.userData.radius,
-        m.userData.yOff + Math.sin(t * 0.9 + m.userData.angle) * 0.25,
-        Math.sin(a) * m.userData.radius
-      );
-      m.rotation.y = a * 2;
-    });
 
     camera.position.x += (targetRY * 1.4 - camera.position.x) * 0.04;
     camera.position.y += (0.6 - targetRX * 1.2 - camera.position.y) * 0.04;

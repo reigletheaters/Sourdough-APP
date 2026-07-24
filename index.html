@@ -42,13 +42,20 @@
     </div>
   </header>
 
-  <div class="deal-banner">
-    <div class="deal-banner-track">
-      <span>Buy 2 loaves and save <strong>10%</strong></span>
-      <span>•</span>
-      <span>Buy 4 and save <strong>20%</strong></span>
-      <span>•</span>
-      <span>Baked the day it's delivered</span>
+  <div class="deal-banner" aria-label="Current deals">
+    <div class="marquee">
+      <div class="marquee-group">
+        <span>Buy 2 loaves and save <strong>10%</strong></span><span class="dot">•</span>
+        <span>Buy 4 and save <strong>20%</strong></span><span class="dot">•</span>
+        <span>Baked the day it's delivered</span><span class="dot">•</span>
+        <span>New: Pretzel loaf!</span><span class="dot">•</span>
+      </div>
+      <div class="marquee-group" aria-hidden="true">
+        <span>Buy 2 loaves and save <strong>10%</strong></span><span class="dot">•</span>
+        <span>Buy 4 and save <strong>20%</strong></span><span class="dot">•</span>
+        <span>Baked the day it's delivered</span><span class="dot">•</span>
+        <span>New: Pretzel loaf!</span><span class="dot">•</span>
+      </div>
     </div>
   </div>
 
@@ -88,7 +95,7 @@
 
     <section class="container">
       <h2 class="section-title reveal">Today's Featured Loaves</h2>
-      <p class="section-sub reveal">Four signature varieties — all $14, all baked this week.</p>
+      <p class="section-sub reveal">Five signature varieties — starting at $12, all baked this week.</p>
       <div class="product-grid" data-product-grid="short"></div>
       <div class="center mt-36 reveal">
         <a class="btn secondary" href="#/shop" data-link>See the full shop →</a>
@@ -112,7 +119,7 @@
       <div class="pairings-grid">
         <div class="pairing-card reveal"><h3>Toast &amp; butter</h3><p>A warm slice, good salted butter, a tiny pinch of flaky salt. The simplest perfect breakfast.</p></div>
         <div class="pairing-card reveal"><h3>Sunday French toast</h3><p>Cinnamon raisin or chocolate chip, soaked in eggs and milk, then fried in butter. Slow morning required.</p></div>
-        <div class="pairing-card reveal"><h3>Bread for dipping</h3><p>Olive &amp; rosemary torn next to a steaming bowl of soup, or dipped in good olive oil with cracked pepper.</p></div>
+        <div class="pairing-card reveal"><h3>Bread for dipping</h3><p>Our olive loaf torn next to a steaming bowl of soup, or dipped in good olive oil with cracked pepper.</p></div>
         <div class="pairing-card reveal"><h3>The grilled cheese</h3><p>Classic sourdough, sharp cheddar, butter on the outside. Nothing fancy, nothing better.</p></div>
       </div>
     </section>
@@ -121,7 +128,7 @@
   <template id="view-shop">
     <section class="container">
       <h1 class="section-title reveal">The Shop</h1>
-      <p class="section-sub reveal">All loaves are 100% organic, naturally leavened, and baked the day they're delivered. $14 each.</p>
+      <p class="section-sub reveal">All loaves are 100% organic, naturally leavened, and baked the day they're delivered. $14 each — our Classic is just $12.</p>
       <div class="product-grid" data-product-grid="long"></div>
 
       <h2 class="section-title mt-64 reveal">Stack Up the Savings</h2>
