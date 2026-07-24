@@ -82,7 +82,7 @@ img { max-width: 100%; display: block; }
 #particles {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 5; /* floats above page content, below header/menus */
   pointer-events: none;
   opacity: 0;
   transition: opacity 1s ease;
