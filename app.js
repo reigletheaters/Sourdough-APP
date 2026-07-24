@@ -592,27 +592,37 @@ function startParticles() {
   resize();
   window.addEventListener('resize', resize);
 
-  motes = Array.from({ length: 42 }, () => ({
+  motes = Array.from({ length: Math.min(110, Math.round(w * h / 14000)) }, () => ({
     x: Math.random() * w,
     y: Math.random() * h,
-    r: 0.8 + Math.random() * 2.2,
-    vx: -0.08 + Math.random() * 0.16,
-    vy: 0.05 + Math.random() * 0.22,
-    o: 0.15 + Math.random() * 0.4
+    r: 1 + Math.random() * 2.8,
+    big: Math.random() < 0.18,
+    vx: -0.15 + Math.random() * 0.3,
+    vy: 0.15 + Math.random() * 0.45,
+    sway: Math.random() * Math.PI * 2,
+    o: 0.35 + Math.random() * 0.45
   }));
 
+  let t = 0;
   function tick() {
+    t += 0.01;
     ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = '#E8B14B';
     motes.forEach(m => {
-      m.x += m.vx; m.y += m.vy;
-      if (m.y > h + 5) { m.y = -5; m.x = Math.random() * w; }
-      if (m.x < -5) m.x = w + 5;
-      if (m.x > w + 5) m.x = -5;
+      m.x += m.vx + Math.sin(t + m.sway) * 0.2;
+      m.y += m.vy;
+      if (m.y > h + 6) { m.y = -6; m.x = Math.random() * w; }
+      if (m.x < -6) m.x = w + 6;
+      if (m.x > w + 6) m.x = -6;
       ctx.globalAlpha = m.o;
+      ctx.fillStyle = '#FFF8EC';
+      if (m.big) {
+        ctx.shadowColor = '#FFF8EC';
+        ctx.shadowBlur = 6;
+      }
       ctx.beginPath();
-      ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+      ctx.arc(m.x, m.y, m.big ? m.r * 1.8 : m.r, 0, Math.PI * 2);
       ctx.fill();
+      ctx.shadowBlur = 0;
     });
     ctx.globalAlpha = 1;
     _particlesRAF = requestAnimationFrame(tick);
