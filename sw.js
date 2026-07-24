@@ -1,29 +1,11 @@
 /* Mariah's Sourdough Co. — service worker
-   Cache-first for the app shell and images so the app
-   loads instantly and works offline. */
+   Network-first for code (updates show up immediately),
+   cache-first for images (fast + offline). */
 
-const CACHE = 'mariahs-v8';
-
-const SHELL = [
-  './',
-  './index.html',
-  './app.css',
-  './app.js',
-  './manifest.webmanifest',
-  './classic.jpg',
-  './chocolate.jpg',
-  './cinnamon.webp',
-  './mariah.jpg',
-  './dough-hands.jpg',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-maskable-512.png'
-];
+const CACHE = 'mariahs-v9';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting())
-  );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -39,29 +21,36 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
-
-  // Never intercept the Formspree order submission or Venmo
   if (url.hostname.includes('formspree.io') || url.hostname.includes('venmo.com')) return;
 
-  event.respondWith(
-    caches.match(req, { ignoreSearch: url.origin === location.origin }).then((cached) => {
-      if (cached) return cached;
-      return fetch(req).then((res) => {
-        // Cache successful same-origin + CDN/image responses for offline use
-        const cacheable =
-          res.ok &&
-          (url.origin === location.origin ||
-           url.hostname === 'cdnjs.cloudflare.com' ||
-           url.hostname === 'images.unsplash.com');
-        if (cacheable) {
+  const isCode = req.mode === 'navigate' ||
+    url.pathname.endsWith('.js') || url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('.html') || url.pathname.endsWith('.webmanifest');
+
+  if (isCode) {
+    // Network first: always try for the freshest version
+    event.respondWith(
+      fetch(req).then((res) => {
+        if (res.ok) {
           const clone = res.clone();
           caches.open(CACHE).then((cache) => cache.put(req, clone));
         }
         return res;
-      }).catch(() => {
-        // Offline fallback: serve the app shell for navigations
-        if (req.mode === 'navigate') return caches.match('./index.html');
-      });
-    })
-  );
+      }).catch(() => caches.match(req).then((c) => c || caches.match('./index.html')))
+    );
+  } else {
+    // Images etc: cache first
+    event.respondWith(
+      caches.match(req).then((cached) => {
+        if (cached) return cached;
+        return fetch(req).then((res) => {
+          if (res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE).then((cache) => cache.put(req, clone));
+          }
+          return res;
+        });
+      })
+    );
+  }
 });

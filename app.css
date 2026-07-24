@@ -87,7 +87,7 @@ img { max-width: 100%; display: block; }
   opacity: 0;
   transition: opacity 1s ease;
 }
-.mode-showcase #particles { opacity: 0.5; }
+.mode-showcase #particles { opacity: 0.9; }
 .mode-sleek #particles { display: none; }
 
 main, .site-header, .deal-banner, .site-footer, .tab-bar { position: relative; z-index: 1; }
