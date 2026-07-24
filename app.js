@@ -654,7 +654,7 @@ function initHero3D() {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(42, mount.clientWidth / mount.clientHeight, 0.1, 100);
-  camera.position.set(0, 0.6, 7);
+  camera.position.set(0, 1.35, 6.8);
 
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(mount.clientWidth, mount.clientHeight);
@@ -674,153 +674,268 @@ function initHero3D() {
   fill.position.set(-4, 2, 3);
   scene.add(fill);
 
-  // ---- Procedural sourdough textures: color map + fine bump map ----
+  // ---- Procedural sourdough textures ----
+  // Texture space: X = around the loaf (512 = top), Y = along the length.
   function makeLoafTextures() {
-    // Color map
     const c = document.createElement('canvas');
     c.width = c.height = 1024;
     const g = c.getContext('2d');
 
-    // Bake gradient: deep golden crust at crown -> pale base
-    const grad = g.createLinearGradient(0, 0, 0, 1024);
-    grad.addColorStop(0.00, '#8a4f16');
-    grad.addColorStop(0.20, '#9c6420');
-    grad.addColorStop(0.45, '#b5812f');
-    grad.addColorStop(0.72, '#cda45c');
-    grad.addColorStop(1.00, '#e0c493');
-    g.fillStyle = grad;
-    g.fillRect(0, 0, 1024, 1024);
-
-    // Gentle mottling (small, subtle — no big blotches)
-    for (let i = 0; i < 650; i++) {
-      const y = Math.pow(Math.random(), 1.3) * 1024;
-      const x = Math.random() * 1024;
-      const r = 3 + Math.random() * 14;
-      g.globalAlpha = 0.03 + Math.random() * 0.05;
-      g.fillStyle = Math.random() > 0.5 ? '#5f3106' : '#d9a94e';
-      g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+    // Floured crust base: pale on top, deeper tan around the sides/bottom
+    for (let x = 0; x < 1024; x++) {
+      const d = Math.abs(x - 512) / 512; // 0 = top of loaf, 1 = bottom
+      const r = Math.round(211 - d * 63);
+      const gr = Math.round(180 - d * 84);
+      const b = Math.round(132 - d * 88);
+      g.fillStyle = 'rgb(' + r + ',' + gr + ',' + b + ')';
+      g.fillRect(x, 0, 1, 1024);
     }
 
-    // Fine crust crackle
-    g.strokeStyle = '#53290a';
-    for (let i = 0; i < 240; i++) {
-      const y = Math.pow(Math.random(), 1.8) * 700;
+    // Brown bake mottling under the flour
+    for (let i = 0; i < 1500; i++) {
+      const x = Math.random() * 1024, y = Math.random() * 1024;
+      const rr = 2 + Math.random() * 12;
+      g.globalAlpha = 0.04 + Math.random() * 0.05;
+      g.fillStyle = Math.random() > 0.45 ? '#8a5a24' : '#e9d6ae';
+      g.beginPath(); g.arc(x, y, rr, 0, Math.PI * 2); g.fill();
+    }
+    // Larger toasted patches
+    for (let i = 0; i < 70; i++) {
+      const x = Math.random() * 1024, y = Math.random() * 1024;
+      const rr = 14 + Math.random() * 36;
+      g.globalAlpha = 0.03 + Math.random() * 0.05;
+      g.fillStyle = '#a5641f';
+      g.beginPath(); g.arc(x, y, rr, 0, Math.PI * 2); g.fill();
+    }
+    // Lengthwise bake streaks
+    for (let i = 0; i < 130; i++) {
       const x = Math.random() * 1024;
-      g.globalAlpha = 0.05 + Math.random() * 0.09;
-      g.lineWidth = 0.6 + Math.random() * 1.3;
+      const y0 = Math.random() * 900;
+      g.globalAlpha = 0.04 + Math.random() * 0.05;
+      g.strokeStyle = '#8a5a24';
+      g.lineWidth = 1.5 + Math.random() * 3;
       g.beginPath();
-      g.moveTo(x, y);
-      g.lineTo(x + (Math.random() - 0.5) * 46, y + (Math.random() - 0.5) * 20);
+      g.moveTo(x, y0);
+      g.lineTo(x + (Math.random() - 0.5) * 30, y0 + 60 + Math.random() * 160);
       g.stroke();
     }
 
-    // Banneton flour rings — concentric rings around the crown
-    const rings = [36, 86, 146, 216, 298, 392];
-    rings.forEach((y, idx) => {
-      const w = 9 + idx * 2;
-      for (let pass = 0; pass < 3; pass++) {
-        g.globalAlpha = 0.10 - pass * 0.025;
-        g.strokeStyle = '#fdf4e0';
-        g.lineWidth = w + pass * 7;
-        g.beginPath(); g.moveTo(-10, y); g.lineTo(1034, y); g.stroke();
-      }
+    // Heavy flour / semolina speckle (denser near the top)
+    for (let i = 0; i < 2600; i++) {
+      const x = Math.random() * 1024;
+      const d = Math.abs(x - 512) / 512;
+      if (Math.random() < d * 0.55) continue;
+      g.globalAlpha = 0.08 + Math.random() * 0.15;
+      g.fillStyle = Math.random() > 0.5 ? '#f3e6c8' : '#efe0bd';
+      const s = 0.7 + Math.random() * 1.9;
+      g.fillRect(x, Math.random() * 1024, s, s);
+    }
+
+    // ---- The burst: big open score with golden crumb showing ----
+    const yTop = 280, yBot = 760;
+    const leftPts = [], rightPts = [];
+    for (let y = yTop; y <= yBot; y += 10) {
+      const t = (y - yTop) / (yBot - yTop);
+      const half = 58 * Math.pow(Math.sin(Math.PI * t), 0.55)
+                 + Math.sin(y * 0.045) * 5 + (Math.random() - 0.5) * 8;
+      leftPts.push([512 - half, y]);
+      rightPts.push([512 + half, y]);
+    }
+
+    function tracePoly() {
+      g.beginPath();
+      g.moveTo(leftPts[0][0], leftPts[0][1]);
+      leftPts.forEach(p => g.lineTo(p[0], p[1]));
+      for (let i = rightPts.length - 1; i >= 0; i--) g.lineTo(rightPts[i][0], rightPts[i][1]);
+      g.closePath();
+    }
+
+    // Crumb base
+    g.globalAlpha = 1;
+    tracePoly();
+    g.fillStyle = '#d08434';
+    g.fill();
+
+    // Warm glow toward the center of the burst
+    const glow = g.createRadialGradient(512, 520, 20, 512, 520, 250);
+    glow.addColorStop(0, 'rgba(255,195,110,0.75)');
+    glow.addColorStop(1, 'rgba(255,190,105,0)');
+    tracePoly();
+    g.fillStyle = glow;
+    g.fill();
+
+    // Crumb bubbles + shiny spots (clip to the burst)
+    g.save();
+    tracePoly();
+    g.clip();
+    for (let i = 0; i < 620; i++) {
+      const y = yTop + Math.random() * (yBot - yTop);
+      const x = 512 + (Math.random() - 0.5) * 112;
+      g.globalAlpha = 0.15 + Math.random() * 0.25;
+      g.fillStyle = '#9c5a1c';
+      const rr = 1 + Math.random() * 5;
+      g.beginPath(); g.arc(x, y, rr, 0, Math.PI * 2); g.fill();
+    }
+    for (let i = 0; i < 260; i++) {
+      const y = yTop + Math.random() * (yBot - yTop);
+      const x = 512 + (Math.random() - 0.5) * 104;
+      g.globalAlpha = 0.15 + Math.random() * 0.28;
+      g.fillStyle = '#ffd894';
+      const rr = 0.8 + Math.random() * 2.6;
+      g.beginPath(); g.arc(x, y, rr, 0, Math.PI * 2); g.fill();
+    }
+    g.restore();
+
+    // Torn crust lip: pale flour ridge outside, dark crust edge inside
+    function strokeEdge(pts) {
+      g.lineJoin = 'round';
+      g.lineCap = 'round';
+      g.globalAlpha = 0.85;
+      g.strokeStyle = '#ecd9ae';
+      g.lineWidth = 17;
+      g.beginPath(); g.moveTo(pts[0][0], pts[0][1]);
+      pts.forEach(p => g.lineTo(p[0], p[1]));
+      g.stroke();
+      g.globalAlpha = 0.95;
+      g.strokeStyle = '#5a2f0e';
+      g.lineWidth = 8;
+      g.beginPath(); g.moveTo(pts[0][0], pts[0][1]);
+      pts.forEach(p => g.lineTo(p[0], p[1]));
+      g.stroke();
+      g.globalAlpha = 0.5;
+      g.strokeStyle = '#f4c274';
+      g.lineWidth = 3;
+      g.beginPath(); g.moveTo(pts[0][0] + 4, pts[0][1]);
+      pts.forEach(p => g.lineTo(p[0] + 4, p[1]));
+      g.stroke();
+    }
+    strokeEdge(leftPts);
+    strokeEdge(rightPts);
+
+    // ---- Wheat-stalk scoring on the floured shoulder ----
+    [380, 644].forEach(function (stalkX) {
+    g.globalAlpha = 0.75;
+    g.strokeStyle = '#6b3c14';
+    g.lineWidth = 3;
+    g.beginPath();
+    for (let y = 165; y <= 860; y += 8) {
+      const x = stalkX + Math.sin(y * 0.02) * 6;
+      y === 165 ? g.moveTo(x, y) : g.lineTo(x, y);
+    }
+    g.stroke();
+    for (let k = 0; k < 13; k++) {
+      const y = 190 + k * 52;
+      const side = k % 2 === 0 ? -1 : 1;
+      const x = stalkX + Math.sin(y * 0.02) * 6 + side * 15;
+      g.save();
+      g.translate(x, y);
+      g.rotate(side * 0.62);
+      g.globalAlpha = 0.85;
+      g.fillStyle = '#6f3f16';
+      g.beginPath(); g.ellipse(0, 0, 10, 25, 0, 0, Math.PI * 2); g.fill();
+      g.globalAlpha = 0.45;
+      g.strokeStyle = '#efe0bd';
+      g.lineWidth = 2;
+      g.beginPath(); g.ellipse(0, 0, 11.5, 27, 0, 0, Math.PI * 2); g.stroke();
+      g.restore();
+    }
     });
 
-    // Flour-dusted crown
-    const capGrad = g.createLinearGradient(0, 0, 0, 220);
-    capGrad.addColorStop(0, 'rgba(253,244,224,0.5)');
-    capGrad.addColorStop(1, 'rgba(253,244,224,0)');
-    g.globalAlpha = 1;
-    g.fillStyle = capGrad;
-    g.fillRect(0, 0, 1024, 220);
-    for (let i = 0; i < 380; i++) {
-      const y = Math.pow(Math.random(), 2.4) * 500;
-      g.globalAlpha = 0.06 + Math.random() * 0.12;
-      g.fillStyle = '#fdf4e0';
-      g.beginPath(); g.arc(Math.random() * 1024, y, 0.8 + Math.random() * 2.4, 0, Math.PI * 2); g.fill();
-    }
-
-    // Scoring: 4 radial cuts from the crown — pale bloomed edge + dark cut
-    g.globalAlpha = 1;
-    for (let i = 0; i < 4; i++) {
-      const x = (i + 0.5) * 256;
-      for (let seg = 0; seg < 14; seg++) {
-        const t0 = seg / 14, t1 = (seg + 1) / 14;
-        const wob0 = Math.sin(t0 * 4.2) * 5, wob1 = Math.sin(t1 * 4.2) * 5;
-        g.strokeStyle = 'rgba(240,222,183,0.9)';
-        g.lineCap = 'round';
-        g.lineWidth = 26 - t0 * 20;
-        g.beginPath(); g.moveTo(x + wob0, 20 + t0 * 300); g.lineTo(x + wob1, 20 + t1 * 300); g.stroke();
-        g.strokeStyle = 'rgba(94,49,12,0.95)';
-        g.lineWidth = 11 - t0 * 8;
-        g.beginPath(); g.moveTo(x + wob0 - 4, 20 + t0 * 300); g.lineTo(x + wob1 - 4, 20 + t1 * 300); g.stroke();
-      }
-    }
+    // Darker rounded ends of the loaf
+    [[0, 135], [889, 1024]].forEach(([a, b]) => {
+      const eg = g.createLinearGradient(0, a === 0 ? b : a, 0, a === 0 ? a : b);
+      eg.addColorStop(0, 'rgba(110,62,22,0)');
+      eg.addColorStop(1, 'rgba(110,62,22,0.28)');
+      g.globalAlpha = 1;
+      g.fillStyle = eg;
+      g.fillRect(0, a, 1024, b - a);
+    });
 
     const map = new THREE.CanvasTexture(c);
     if (THREE.sRGBEncoding !== undefined) map.encoding = THREE.sRGBEncoding;
 
-    // Bump map: fine grain + ridges + score grooves (kept separate so
-    // color blotches don't turn into craters)
-    const b = document.createElement('canvas');
-    b.width = b.height = 512;
-    const bg = b.getContext('2d');
+    // ---- Bump: crumb bubbles, crust lip ridge, leaf cuts, fine grain ----
+    const b2 = document.createElement('canvas');
+    b2.width = b2.height = 512;
+    const bg = b2.getContext('2d');
     bg.fillStyle = '#808080';
     bg.fillRect(0, 0, 512, 512);
     for (let i = 0; i < 9000; i++) {
-      const v = Math.floor(108 + Math.random() * 40);
+      const v = Math.floor(112 + Math.random() * 34);
       bg.globalAlpha = 0.5;
       bg.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')';
-      bg.fillRect(Math.random() * 512, Math.random() * 512, 1.6, 1.6);
+      bg.fillRect(Math.random() * 512, Math.random() * 512, 1.5, 1.5);
     }
-    for (let i = 0; i < 26; i++) {
-      const x = Math.random() * 512, y = Math.random() * 512, r = 30 + Math.random() * 80;
-      const rg = bg.createRadialGradient(x, y, 0, x, y, r);
-      const up = Math.random() > 0.5;
-      rg.addColorStop(0, up ? 'rgba(160,160,160,0.5)' : 'rgba(96,96,96,0.5)');
-      rg.addColorStop(1, 'rgba(128,128,128,0)');
-      bg.globalAlpha = 1;
-      bg.fillStyle = rg;
-      bg.beginPath(); bg.arc(x, y, r, 0, Math.PI * 2); bg.fill();
+    // burst raised + bubbly
+    bg.globalAlpha = 0.5;
+    bg.fillStyle = '#a6a6a6';
+    bg.fillRect(227, 140, 58, 240);
+    for (let i = 0; i < 420; i++) {
+      const x = 256 + (Math.random() - 0.5) * 54;
+      const y = 140 + Math.random() * 240;
+      bg.globalAlpha = 0.35 + Math.random() * 0.3;
+      bg.fillStyle = '#565656';
+      const rr = 0.8 + Math.random() * 2.8;
+      bg.beginPath(); bg.arc(x, y, rr, 0, Math.PI * 2); bg.fill();
     }
-    [18, 43, 73, 108, 149, 196].forEach(y => {
-      bg.globalAlpha = 0.55; bg.strokeStyle = '#9a9a9a'; bg.lineWidth = 5;
-      bg.beginPath(); bg.moveTo(-5, y); bg.lineTo(517, y); bg.stroke();
+    // crust lip ridges
+    bg.globalAlpha = 0.85;
+    bg.strokeStyle = '#e2e2e2';
+    bg.lineWidth = 5;
+    [227, 285].forEach(x => {
+      bg.beginPath(); bg.moveTo(x, 140); bg.lineTo(x, 380); bg.stroke();
     });
-    for (let i = 0; i < 4; i++) {
-      const x = (i + 0.5) * 128;
-      bg.globalAlpha = 0.9; bg.strokeStyle = '#3c3c3c'; bg.lineCap = 'round';
-      bg.lineWidth = 8;
-      bg.beginPath(); bg.moveTo(x, 10); bg.lineTo(x, 160); bg.stroke();
-      bg.globalAlpha = 0.7; bg.strokeStyle = '#c8c8c8'; bg.lineWidth = 4;
-      bg.beginPath(); bg.moveTo(x + 6, 12); bg.lineTo(x + 6, 150); bg.stroke();
+    // leaf cuts recessed
+    [190, 322].forEach(function (bx) {
+    for (let k = 0; k < 13; k++) {
+      const y = (190 + k * 52) / 2;
+      const side = k % 2 === 0 ? -1 : 1;
+      const x = bx + side * 8;
+      bg.save();
+      bg.translate(x, y);
+      bg.rotate(side * 0.62);
+      bg.globalAlpha = 0.8;
+      bg.fillStyle = '#4a4a4a';
+      bg.beginPath(); bg.ellipse(0, 0, 4, 10, 0, 0, Math.PI * 2); bg.fill();
+      bg.restore();
     }
-    const bump = new THREE.CanvasTexture(b);
+    });
+    const bump = new THREE.CanvasTexture(b2);
 
-    return { map, bump };
+    // ---- Roughness: crust matte, exposed crumb glossier ----
+    const r2 = document.createElement('canvas');
+    r2.width = r2.height = 256;
+    const rg2 = r2.getContext('2d');
+    rg2.fillStyle = '#d6d6d6';
+    rg2.fillRect(0, 0, 256, 256);
+    rg2.fillStyle = '#6f6f6f';
+    rg2.fillRect(114, 70, 28, 120);
+    const rough = new THREE.CanvasTexture(r2);
+
+    return { map, bump, rough };
   }
 
-  // ---- The loaf: smooth round boule, flat bottom ----
+  // ---- The loaf: batard (oval), poles at the ends, flat bottom ----
   const loaf = new THREE.Group();
   const bodyGeo = new THREE.SphereGeometry(1.5, 96, 64);
+  bodyGeo.rotateZ(Math.PI / 2); // poles now at the ends of the loaf
 
-  // Very gentle organic variation (kept low so it reads bread, not rock)
   const pos = bodyGeo.attributes.position;
   const v = new THREE.Vector3();
   for (let i = 0; i < pos.count; i++) {
     v.fromBufferAttribute(pos, i);
     const n =
-      0.020 * Math.sin(3.1 * v.x + 1.7) * Math.sin(2.7 * v.z - 0.8) +
-      0.012 * Math.sin(5.3 * v.y + 2.1) * Math.sin(4.1 * v.x + 0.6);
+      0.016 * Math.sin(3.1 * v.x + 1.7) * Math.sin(2.7 * v.z - 0.8) +
+      0.010 * Math.sin(5.3 * v.y + 2.1) * Math.sin(4.1 * v.x + 0.6);
     v.multiplyScalar(1 + n);
     pos.setXYZ(i, v.x, v.y, v.z);
   }
-  bodyGeo.scale(1.12, 0.98, 1.08);
+  bodyGeo.scale(1.5, 0.85, 0.92);
 
-  // Flat bottom so it sits like a boule
+  // Flat bottom
   for (let i = 0; i < pos.count; i++) {
     const y = pos.getY(i);
-    if (y < -1.05) pos.setY(i, -1.05 + (y + 1.05) * 0.18);
+    if (y < -1.02) pos.setY(i, -1.02 + (y + 1.02) * 0.2);
   }
   bodyGeo.computeVertexNormals();
 
@@ -828,8 +943,9 @@ function initHero3D() {
   const crustMat = new THREE.MeshStandardMaterial({
     map: loafTex.map,
     bumpMap: loafTex.bump,
-    bumpScale: 0.025,
-    roughness: 0.72,
+    bumpScale: 0.03,
+    roughnessMap: loafTex.rough,
+    roughness: 1.0,
     metalness: 0.0
   });
   const body = new THREE.Mesh(bodyGeo, crustMat);
@@ -872,7 +988,7 @@ function initHero3D() {
   });
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(5.2, 4.2), shadowMat);
   shadow.rotation.x = -Math.PI / 2;
-  shadow.position.y = -1.52;
+  shadow.position.y = -1.62;
   scene.add(shadow);
 
   // Mouse parallax
@@ -909,7 +1025,7 @@ function initHero3D() {
     dust.rotation.y = t * 0.05;
 
     camera.position.x += (targetRY * 1.4 - camera.position.x) * 0.04;
-    camera.position.y += (0.6 - targetRX * 1.2 - camera.position.y) * 0.04;
+    camera.position.y += (1.35 - targetRX * 1.2 - camera.position.y) * 0.04;
     camera.lookAt(0, 0, 0);
 
     renderer.render(scene, camera);
