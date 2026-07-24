@@ -30,9 +30,6 @@
         <a href="#/why" data-route="why" data-link>Why Sourdough?</a>
       </nav>
       <div class="header-actions">
-        <button id="mode-toggle" class="mode-toggle" title="Switch visual style" aria-label="Switch visual style">
-          <span class="mode-dot"></span><span id="mode-label">Showcase</span>
-        </button>
         <button id="install-btn" class="install-btn" hidden>⬇ Install app</button>
         <a href="#/cart" class="cart-link" data-link aria-label="Cart">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
@@ -76,7 +73,6 @@
 
   <template id="view-home">
     <section class="hero" id="hero">
-      <div id="hero-3d" class="hero-3d" aria-hidden="true"></div>
       <div class="hero-inner">
         <p class="hero-kicker reveal">Small-batch • Organic • Naturally leavened</p>
         <h1 class="reveal">Slow-fermented sourdough,<br>baked fresh by hand.</h1>
@@ -87,26 +83,6 @@
         </div>
       </div>
       <div class="hero-scroll-hint" aria-hidden="true"><span></span></div>
-    </section>
-
-    <section class="container">
-      <h2 class="section-title reveal">Today's Featured Loaves</h2>
-      <p class="section-sub reveal">Five signature varieties — starting at $12, all baked this week.</p>
-      <div class="product-grid" data-product-grid="short"></div>
-      <div class="center mt-36 reveal">
-        <a class="btn secondary" href="#/shop" data-link>See the full shop →</a>
-      </div>
-    </section>
-
-    <section class="band">
-      <div class="container">
-        <h2 class="section-title reveal">The More You Bake With Us, The More You Save</h2>
-        <p class="section-sub reveal">Our way of saying thanks — discounts apply automatically at checkout.</p>
-        <div class="deals-row">
-          <div class="deal-card reveal"><span class="pct" data-count="10">10% off</span><h3>Buy 2 loaves</h3><p>Mix and match any two — perfect for the week ahead.</p></div>
-          <div class="deal-card reveal"><span class="pct" data-count="20">20% off</span><h3>Buy 4 loaves</h3><p>Stock the freezer or share with neighbors. Best value.</p></div>
-        </div>
-      </div>
     </section>
 
     <section class="container">
@@ -259,7 +235,6 @@
     </section>
   </template>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>
