@@ -2,7 +2,7 @@
    Cache-first for the app shell and images so the app
    loads instantly and works offline. */
 
-const CACHE = 'mariahs-v5';
+const CACHE = 'mariahs-v6';
 
 const SHELL = [
   './',
