@@ -676,6 +676,37 @@ function initPWA() {
   });
 }
 
+/* iOS "Add to Home Screen" hint (Apple never shows an install prompt) */
+function initIOSHint() {
+  const el = document.getElementById('ios-install');
+  if (!el) return;
+
+  const ua = navigator.userAgent || '';
+  const isIOS = /iphone|ipad|ipod/i.test(ua) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isStandalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) ||
+    window.navigator.standalone === true;
+
+  let dismissed = false;
+  try { dismissed = localStorage.getItem('mariahs_ios_hint') === '1'; } catch (e) {}
+
+  if (!isIOS || isStandalone || dismissed) return;
+
+  setTimeout(() => {
+    el.hidden = false;
+    requestAnimationFrame(() => el.classList.add('show'));
+  }, 2500);
+
+  const close = document.getElementById('ios-install-close');
+  if (close) {
+    close.addEventListener('click', () => {
+      el.classList.remove('show');
+      setTimeout(() => { el.hidden = true; }, 500);
+      try { localStorage.setItem('mariahs_ios_hint', '1'); } catch (e) {}
+    });
+  }
+}
+
 /* =========================================================
    Boot
    ========================================================= */
@@ -683,6 +714,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setMode('showcase', true);
   updateCartBadge();
   initPWA();
+  initIOSHint();
   render();
 
   window.addEventListener('hashchange', render);
