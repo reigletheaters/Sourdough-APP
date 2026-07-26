@@ -1,6 +1,6 @@
 {
   "name": "Mariah's Sourdough Co.",
-  "short_name": "Mariah's",
+  "short_name": "Mariah's Sourdough",
   "description": "Slow-fermented organic sourdough, baked fresh by hand. Order online — local delivery.",
   "start_url": "./index.html#/",
   "scope": "./",
